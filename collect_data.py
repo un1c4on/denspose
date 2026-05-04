@@ -28,7 +28,7 @@ FS            = 20
 WINDOW_SEC    = 3
 WINDOW_FRAMES = FS * WINDOW_SEC   # 60 frame = 1 örnek
 N_SC          = 64
-SAVE_DIR      = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dataset')
+SAVE_DIR      = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dataset_2')
 VALID_LABELS  = ['empty', 'present', 'walking', 'fall']
 
 os.makedirs(SAVE_DIR, exist_ok=True)
@@ -70,16 +70,16 @@ def countdown(seconds, message):
 # ── Node bağlantısını doğrula ─────────────────────────────────────────────────
 def wait_for_nodes(sock, min_nodes=2, timeout=15):
     pr(f'\n{cyan("Node bağlantısı bekleniyor...")} (en az {min_nodes} node)')
-    seen = set()
+    seen = set()          # kaynak IP adresleri
     deadline = time.time() + timeout
     while time.time() < deadline:
         try:
-            data, _ = sock.recvfrom(8192)
+            data, addr = sock.recvfrom(8192)
         except socket.timeout:
             continue
         f = parse_packet(data)
         if f:
-            seen.add(f['node'])
+            seen.add(addr[0])   # IP adresine göre node ayır
             print(f'\r  Bağlı node\'lar: {sorted(seen)}   ', end='', flush=True)
             if len(seen) >= min_nodes:
                 pr(f'\n{green(f"{len(seen)} node bağlandı ✓")}')
@@ -118,7 +118,7 @@ def record(sock, label, duration=None, target_count=None, min_nodes=2):
                 break
 
             try:
-                data, _ = sock.recvfrom(8192)
+                data, addr = sock.recvfrom(8192)
             except socket.timeout:
                 continue
 
@@ -126,7 +126,7 @@ def record(sock, label, duration=None, target_count=None, min_nodes=2):
             if f is None:
                 continue
 
-            nid = f['node']
+            nid = addr[0]   # IP adresine göre node ayır
             if nid not in buffers:
                 buffers[nid] = collections.deque(maxlen=WINDOW_FRAMES)
             buffers[nid].append(f['amps'])
