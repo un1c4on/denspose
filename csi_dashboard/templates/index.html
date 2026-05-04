@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSI Dashboard</title>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:     #0f1117;
+    --panel:  #1a1d27;
+    --border: #2a2d3a;
+    --text:   #e2e8f0;
+    --muted:  #64748b;
+    --green:  #22c55e;
+    --yellow: #eab308;
+    --red:    #ef4444;
+    --blue:   #3b82f6;
+    --cyan:   #06b6d4;
+    --purple: #a855f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; }
+
+  /* ── Header ── */
+  header {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header h1 { font-size: 16px; font-weight: 600; letter-spacing: .05em; color: var(--cyan); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .stat-pill {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .stat-pill span { color: var(--text); font-weight: 600; }
+
+  /* ── CNN Tahmin Paneli ── */
+  .cnn-panel {
+    margin: 16px 16px 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .cnn-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cnn-header .model-badge {
+    background: rgba(168,85,247,.15);
+    border: 1px solid rgba(168,85,247,.4);
+    color: var(--purple);
+    border-radius: 10px;
+    padding: 2px 10px;
+    font-size: 10px;
+  }
+  .cnn-body {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0;
+  }
+  /* Büyük sonuç */
+  .cnn-result {
+    padding: 20px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+    min-width: 180px;
+  }
+  .cnn-label {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    transition: all .3s;
+  }
+  .cnn-conf {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .cnn-conf span { color: var(--text); font-weight: 600; }
+  /* Renk sınıfları */
+  .cnn-empty   { color: var(--blue); }
+  .cnn-present { color: var(--yellow); }
+  .cnn-walking { color: var(--green); }
+  .cnn-fall    { color: var(--red); animation: fall-flash .4s infinite; }
+  @keyframes fall-flash { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* Olasılık barları */
+  .cnn-probs {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    flex: 1;
+  }
+  .prob-row { display: flex; align-items: center; gap: 10px; }
+  .prob-lbl { font-size: 12px; color: var(--muted); width: 72px; text-align: right; }
+  .prob-bar-wrap {
+    flex: 1;
+    height: 14px;
+    background: rgba(255,255,255,.05);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  .prob-bar {
+    height: 100%;
+    border-radius: 7px;
+    transition: width .4s ease;
+  }
+  .bar-empty   { background: var(--blue); }
+  .bar-present { background: var(--yellow); }
+  .bar-walking { background: var(--green); }
+  .bar-fall    { background: var(--red); }
+  .prob-pct { font-size: 12px; font-weight: 600; width: 38px; font-family: monospace; }
+
+  /* ── Layout ── */
+  .main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px; }
+  @media(max-width:900px){ .main { grid-template-columns: 1fr; } }
+
+  /* ── Node Card ── */
+  .node-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .node-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .node-id {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cyan);
+    background: rgba(6,182,212,.1);
+    border: 1px solid rgba(6,182,212,.3);
+    border-radius: 6px;
+    padding: 2px 10px;
+  }
+  .status-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 12px;
+    border-radius: 20px;
+    margin-left: auto;
+    transition: all .3s;
+  }
+  .s-cal      { background:rgba(100,116,139,.2); color:var(--muted); border:1px solid var(--muted); }
+  .s-empty    { background:rgba(59,130,246,.1);  color:var(--blue);  border:1px solid rgba(59,130,246,.4); }
+  .s-presence { background:rgba(234,179,8,.1);   color:var(--yellow);border:1px solid rgba(234,179,8,.4); }
+  .s-motion   { background:rgba(34,197,94,.1);   color:var(--green); border:1px solid rgba(34,197,94,.4); }
+  .s-fall     { background:rgba(239,68,68,.2);   color:var(--red);   border:1px solid var(--red); animation:fall-flash .4s infinite; }
+
+  /* ── Metrics row ── */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .metric { background: var(--panel); padding: 10px 14px; text-align: center; }
+  .metric .val { font-size: 20px; font-weight: 700; line-height: 1.2; }
+  .metric .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing:.06em; margin-top:2px; }
+  .val-rssi { color: var(--cyan); }
+  .val-amp  { color: var(--green); }
+  .val-var  { color: var(--yellow); }
+  .val-rate { color: var(--blue); }
+
+  /* ── Chart ── */
+  .chart-wrap { padding: 12px 16px; height: 160px; position: relative; }
+
+  /* ── Subcarrier bar ── */
+  .sc-wrap { padding: 8px 16px 12px; }
+  .sc-label { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+  .sc-bars { display: flex; gap: 1px; height: 36px; align-items: flex-end; }
+  .sc-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 2px; }
+
+  /* ── Recalibrate button ── */
+  .recal-btn {
+    margin: 0 16px 12px;
+    width: calc(100% - 32px);
+    padding: 8px;
+    background: rgba(59,130,246,.1);
+    border: 1px solid rgba(59,130,246,.4);
+    color: var(--blue);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all .2s;
+  }
+  .recal-btn:hover { background: rgba(59,130,246,.2); }
+
+  /* ── Bottom panels ── */
+  .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 16px 16px; }
+  @media(max-width:900px){ .bottom { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  /* ── Events log ── */
+  .events-list { padding: 8px 0; max-height: 220px; overflow-y: auto; }
+  .event-item {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .event-item:last-child { border-bottom: none; }
+  .ev-fall    { border-left: 3px solid var(--red); }
+  .ev-motion  { border-left: 3px solid var(--green); }
+  .ev-presence{ border-left: 3px solid var(--yellow); }
+  .ev-time    { font-size: 11px; color: var(--muted); font-family: monospace; white-space:nowrap; }
+  .ev-badge { font-size: 10px; font-weight:700; padding: 2px 8px; border-radius:10px; white-space:nowrap; }
+  .ev-badge.fall     { background:rgba(239,68,68,.2);  color:var(--red);    border:1px solid rgba(239,68,68,.4); }
+  .ev-badge.motion   { background:rgba(34,197,94,.2);  color:var(--green);  border:1px solid rgba(34,197,94,.4); }
+  .ev-badge.presence { background:rgba(234,179,8,.2);  color:var(--yellow); border:1px solid rgba(234,179,8,.4); }
+  .ev-node   { font-size:11px; color:var(--cyan); font-weight:600; }
+  .ev-source { font-size:10px; color:var(--purple); }
+  .empty-msg { padding: 20px; text-align:center; color:var(--muted); font-size:13px; }
+
+  /* ── Thresholds ── */
+  .thresh-grid { padding: 12px 16px; display: grid; gap: 10px; }
+  .thresh-row { display: flex; align-items: center; gap: 10px; }
+  .thresh-row label { font-size: 12px; color: var(--muted); flex: 1; }
+  .thresh-row input[type=range] { flex: 2; accent-color: var(--cyan); }
+  .thresh-val { font-size: 12px; font-weight: 600; color: var(--text); width: 40px; text-align: right; font-family: monospace; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>CSI Dashboard</h1>
+  <div class="stat-pill">Toplam: <span id="total">0</span> paket</div>
+  <div class="stat-pill">Node: <span id="node-count">0</span></div>
+  <div class="stat-pill" id="conn-status" style="color:var(--yellow)">Bağlanıyor...</div>
+</header>
+
+<!-- CNN Tahmin Paneli -->
+<div class="cnn-panel">
+  <div class="cnn-header">
+    🧠 CNN Tahmin
+    <span class="model-badge">CSINet · 99.6% doğruluk</span>
+  </div>
+  <div class="cnn-body">
+    <div class="cnn-result">
+      <div class="cnn-label cnn-empty" id="cnn-label">—</div>
+      <div class="cnn-conf">Güven: <span id="cnn-conf">—</span></div>
+    </div>
+    <div class="cnn-probs">
+      <div class="prob-row">
+        <span class="prob-lbl">Boş Oda</span>
+        <div class="prob-bar-wrap"><div class="prob-bar bar-empty" id="bar-empty" style="width:25%"></div></div>
+        <span class="prob-pct" id="pct-empty">25%</span>
+      </div>
+      <div class="prob-row">
+        <span class="prob-lbl">Varlık</span>
+        <div class="prob-bar-wrap"><div class="prob-bar bar-present" id="bar-present" style="width:25%"></div></div>
+        <span class="prob-pct" id="pct-present">25%</span>
+      </div>
+      <div class="prob-row">
+        <span class="prob-lbl">Hareket</span>
+        <div class="prob-bar-wrap"><div class="prob-bar bar-walking" id="bar-walking" style="width:25%"></div></div>
+        <span class="prob-pct" id="pct-walking">25%</span>
+      </div>
+      <div class="prob-row">
+        <span class="prob-lbl">Düşme</span>
+        <div class="prob-bar-wrap"><div class="prob-bar bar-fall" id="bar-fall" style="width:25%"></div></div>
+        <span class="prob-pct" id="pct-fall">25%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main" id="nodes-grid"></div>
+
+<div class="bottom">
+  <div class="panel">
+    <div class="panel-header">⚡ Olay Logu</div>
+    <div class="events-list" id="events-list">
+      <div class="empty-msg">Henüz olay yok</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">📊 Model Bilgisi</div>
+    <div style="padding:16px;display:grid;gap:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span style="color:var(--muted)">Model</span>
+        <span style="font-weight:600">CSINet (CNN)</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span style="color:var(--muted)">Doğruluk</span>
+        <span style="color:var(--green);font-weight:700">99.6%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span style="color:var(--muted)">Eğitim Verisi</span>
+        <span style="font-weight:600">1156 örnek</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span style="color:var(--muted)">Pencere</span>
+        <span style="font-weight:600">3s × 20Hz = 60 frame</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span style="color:var(--muted)">Subcarrier</span>
+        <span style="font-weight:600">64 / node</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span style="color:var(--muted)">Çıkarım Aralığı</span>
+        <span style="font-weight:600">1.5 saniye</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span style="color:var(--muted)">Sınıflar</span>
+        <span style="font-weight:600">empty / present / walking / fall</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const socket = io();
+let totalPkts = 0;
+const nodeCharts = {};
+const nodeCards  = {};
+
+const CNN_COLORS = {
+  'empty':   'var(--blue)',
+  'present': 'var(--yellow)',
+  'walking': 'var(--green)',
+  'fall':    'var(--red)',
+};
+const CNN_LABELS = {
+  'empty': 'BOŞ ODA', 'present': 'VARLIK',
+  'walking': 'HAREKET', 'fall': '🔴 DÜŞME!', '—': '—'
+};
+
+// ── Bağlantı ──────────────────────────────────────────────────────────────
+socket.on('connect', () => {
+  document.getElementById('conn-status').textContent = '● Bağlı';
+  document.getElementById('conn-status').style.color = 'var(--green)';
+  socket.emit('get_events');
+});
+socket.on('disconnect', () => {
+  document.getElementById('conn-status').textContent = '○ Bağlantı Kesildi';
+  document.getElementById('conn-status').style.color = 'var(--red)';
+});
+
+// ── CNN sonucu ────────────────────────────────────────────────────────────
+socket.on('cnn_result', (r) => updateCNN(r));
+
+function updateCNN(r) {
+  const lbl = document.getElementById('cnn-label');
+  lbl.textContent  = CNN_LABELS[r.label] || r.label_tr || '—';
+  lbl.className    = 'cnn-label cnn-' + (r.label || 'empty');
+  document.getElementById('cnn-conf').textContent = r.label === '—' ? '—' : (r.conf * 100).toFixed(1) + '%';
+
+  const keys = ['empty', 'present', 'walking', 'fall'];
+  keys.forEach((k, i) => {
+    const pct = Math.round((r.probs[i] || 0) * 100);
+    document.getElementById('bar-' + k).style.width = pct + '%';
+    document.getElementById('pct-' + k).textContent = pct + '%';
+  });
+}
+
+// ── Frame geldi ───────────────────────────────────────────────────────────
+socket.on('frame', (d) => {
+  totalPkts++;
+  document.getElementById('total').textContent = totalPkts.toLocaleString();
+  if (!nodeCards[d.node]) createNodeCard(d.node);
+  updateNodeCard(d);
+  if (d.event) addEvent(d.event);
+  if (d.cnn && d.cnn.label !== '—') updateCNN(d.cnn);
+});
+
+// ── Olaylar ───────────────────────────────────────────────────────────────
+socket.on('events', (evs) => evs.forEach(addEvent));
+
+function addEvent(ev) {
+  const list = document.getElementById('events-list');
+  const empty = list.querySelector('.empty-msg');
+  if (empty) empty.remove();
+
+  const cls   = ev.type === 'fall' ? 'fall' : ev.type === 'motion' ? 'motion' : 'presence';
+  const label = ev.type === 'fall' ? '🔴 DÜŞME' : ev.type === 'motion' ? '🟢 HAREKET' : '🟡 VARLIK';
+  const src   = ev.source === 'CNN' ? '🧠 CNN' : ev.source === 'kural' ? '⚡ Kural' : '';
+  const div   = document.createElement('div');
+  div.className = `event-item ev-${cls}`;
+  div.innerHTML = `
+    <span class="ev-time">${ev.ts}</span>
+    <span class="ev-badge ${cls}">${label}</span>
+    ${ev.node ? `<span class="ev-node">Node ${ev.node}</span>` : ''}
+    ${src ? `<span class="ev-source">${src}</span>` : ''}
+    <span style="color:var(--muted);font-size:12px">${ev.amp}</span>
+  `;
+  list.prepend(div);
+  if (list.children.length > 30) list.lastChild.remove();
+}
+
+// ── Node kartı oluştur ────────────────────────────────────────────────────
+function createNodeCard(nid) {
+  document.getElementById('node-count').textContent = Object.keys(nodeCards).length + 1;
+
+  const grid = document.getElementById('nodes-grid');
+  const card = document.createElement('div');
+  card.className = 'node-card';
+  card.id = `card-${nid}`;
+  card.innerHTML = `
+    <div class="node-header">
+      <span class="node-id">NODE ${nid}</span>
+      <span style="font-size:12px;color:var(--muted)" id="seq-${nid}">seq: —</span>
+      <span style="margin-left:auto;font-size:11px;color:var(--muted)" id="seq-info-${nid}">—</span>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="val val-rssi" id="rssi-${nid}">—</div><div class="lbl">RSSI (dBm)</div></div>
+      <div class="metric"><div class="val val-amp"  id="amp-${nid}">—</div><div class="lbl">Amp (ort)</div></div>
+      <div class="metric"><div class="val val-var"  id="var-${nid}">—</div><div class="lbl">Varyans</div></div>
+      <div class="metric"><div class="val val-rate" id="rate-${nid}">—</div><div class="lbl">pkt/s</div></div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="chart-${nid}"></canvas>
+    </div>
+    <div class="sc-wrap">
+      <div class="sc-label">Subcarrier Genliği (ham)</div>
+      <div class="sc-bars" id="sc-${nid}"></div>
+    </div>
+    <button class="recal-btn" onclick="recalibrate(${nid})">↺ Yeniden Kalibre Et (Node ${nid})</button>
+  `;
+  grid.appendChild(card);
+  nodeCards[nid] = card;
+
+  const ctx = document.getElementById(`chart-${nid}`).getContext('2d');
+  nodeCharts[nid] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'EMA Genlik',
+        data: [],
+        borderColor: '#06b6d4',
+        backgroundColor: 'rgba(6,182,212,.08)',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { display: false },
+        y: {
+          grid: { color: 'rgba(255,255,255,.05)' },
+          ticks: { color: '#64748b', font: { size: 10 } },
+        }
+      }
+    }
+  });
+}
+
+// ── Node kartı güncelle ───────────────────────────────────────────────────
+const STATUS_MAP = {
+  'KALİBRASYON':   ['s-cal',      'KALİBRASYON'],
+  'BOŞ ODA':       ['s-empty',    'BOŞ ODA'],
+  'VARLIK TESPİT': ['s-presence', 'VARLIK'],
+  'HAREKET VAR':   ['s-motion',   'HAREKET'],
+  'DÜŞME TESPİT':  ['s-fall',     '🔴 DÜŞME!'],
+};
+
+function updateNodeCard(d) {
+  const nid = d.node;
+  document.getElementById(`seq-${nid}`).textContent      = `#${d.seq.toLocaleString()}`;
+  document.getElementById(`seq-info-${nid}`).textContent = `pkt: ${d.pkt || d.seq}`;
+  document.getElementById(`rssi-${nid}`).textContent     = d.rssi;
+  document.getElementById(`amp-${nid}`).textContent      = d.mean.toFixed(1);
+  document.getElementById(`var-${nid}`).textContent      = d.var.toFixed(1);
+  document.getElementById(`rate-${nid}`).textContent     = d.rate.toFixed(1);
+
+  const chart = nodeCharts[nid];
+  chart.data.labels = d.buf.map((_, i) => i);
+  chart.data.datasets[0].data = d.buf;
+
+  const color = d.status === 'DÜŞME TESPİT' ? '#ef4444' :
+                d.status === 'HAREKET VAR'  ? '#22c55e' :
+                d.status === 'VARLIK TESPİT'? '#eab308' : '#06b6d4';
+  chart.data.datasets[0].borderColor     = color;
+  chart.data.datasets[0].backgroundColor = color + '18';
+  chart.update('none');
+}
+
+// ── Eşik ayarla ──────────────────────────────────────────────────────────
+function updateThresh(key, val) {
+  document.getElementById(`v-${key}`).textContent = parseFloat(val).toFixed(1);
+  socket.emit('set_threshold', { key, val: parseFloat(val) });
+}
+
+// ── Yeniden kalibrasyon ───────────────────────────────────────────────────
+function recalibrate(nid) {
+  socket.emit('recalibrate', { node: nid });
+  const sb = document.getElementById(`status-${nid}`);
+  if (sb) { sb.className = 'status-badge s-cal'; sb.textContent = 'KALİBRASYON'; }
+}
+</script>
+</body>
+</html>

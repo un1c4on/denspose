@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.65;
+    color: #1a1a1a;
+    background: #fff;
+  }
+
+  @page {
+    size: A4;
+    margin: 2.2cm 2.5cm 2.5cm 2.5cm;
+    @bottom-center {
+      content: counter(page);
+      font-size: 9pt;
+      color: #888;
+    }
+  }
+
+  /* COVER PAGE */
+  .cover {
+    page: cover;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1cm 0;
+  }
+
+  @page cover { margin: 3cm 3cm 3cm 3cm; @bottom-center { content: none; } }
+
+  .cover-header {
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 18px;
+  }
+
+  .cover-header .institution {
+    font-size: 10pt;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #555;
+  }
+
+  .cover-header .dept {
+    font-size: 9.5pt;
+    color: #777;
+    margin-top: 3px;
+  }
+
+  .cover-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2cm 0;
+  }
+
+  .cover-tag {
+    font-size: 8.5pt;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 18px;
+    font-weight: 600;
+  }
+
+  .cover-title {
+    font-family: 'Source Serif 4', 'Georgia', serif;
+    font-size: 26pt;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #0f0f0f;
+    margin-bottom: 12px;
+  }
+
+  .cover-subtitle {
+    font-size: 13pt;
+    color: #444;
+    font-weight: 300;
+    margin-bottom: 36px;
+  }
+
+  .cover-divider {
+    width: 48px;
+    height: 3px;
+    background: #1a1a1a;
+    margin-bottom: 36px;
+  }
+
+  .cover-meta table {
+    border-collapse: collapse;
+  }
+  .cover-meta td {
+    padding: 3px 0;
+    font-size: 10pt;
+  }
+  .cover-meta td:first-child {
+    color: #888;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    width: 110px;
+    vertical-align: top;
+  }
+  .cover-meta td:last-child {
+    color: #1a1a1a;
+    font-weight: 400;
+  }
+
+  .cover-footer {
+    border-top: 1px solid #ddd;
+    padding-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9pt;
+    color: #999;
+  }
+
+  /* MAIN CONTENT */
+  .content {
+    page: content;
+  }
+
+  @page content {
+    margin: 2.2cm 2.5cm 2.5cm 2.5cm;
+    @bottom-center {
+      content: counter(page);
+      font-size: 9pt;
+      color: #aaa;
+    }
+    @top-right {
+      content: "WiFi CSI Tabanlı Hareket Tespiti ve Vital Sign İzleme";
+      font-size: 8pt;
+      color: #bbb;
+    }
+  }
+
+  /* TOC */
+  .toc-title {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 18pt;
+    font-weight: 600;
+    color: #0f0f0f;
+    margin-bottom: 28px;
+    padding-bottom: 10px;
+    border-bottom: 1.5px solid #ddd;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: baseline;
+    padding: 5px 0;
+    font-size: 10.5pt;
+    border-bottom: 1px dotted #ddd;
+  }
+
+  .toc-num {
+    color: #888;
+    font-size: 9pt;
+    width: 32px;
+    flex-shrink: 0;
+  }
+
+  .toc-text {
+    flex: 1;
+    color: #222;
+  }
+
+  .toc-sub {
+    padding-left: 32px;
+    font-size: 9.5pt;
+    color: #555;
+    border-bottom: 1px dotted #eee;
+  }
+
+  .page-break { page-break-after: always; }
+
+  /* SECTIONS */
+  h1 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 18pt;
+    font-weight: 600;
+    color: #0f0f0f;
+    margin: 0 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 1.5px solid #ddd;
+  }
+
+  h2 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 13pt;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 32px 0 12px 0;
+  }
+
+  h3 {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: #333;
+    margin: 20px 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  p { margin-bottom: 10px; }
+
+  .section-number {
+    font-size: 9pt;
+    color: #aaa;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* CALLOUT BOX */
+  .callout {
+    border-left: 3px solid #1a1a1a;
+    background: #f7f7f7;
+    padding: 14px 18px;
+    margin: 20px 0;
+    font-size: 10pt;
+  }
+
+  .callout-label {
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 5px;
+  }
+
+  /* TABLE */
+  table.spec {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 10pt;
+  }
+
+  table.spec thead tr {
+    border-bottom: 2px solid #1a1a1a;
+  }
+
+  table.spec thead th {
+    text-align: left;
+    padding: 7px 10px;
+    font-size: 8.5pt;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #555;
+  }
+
+  table.spec tbody tr {
+    border-bottom: 1px solid #eee;
+  }
+
+  table.spec tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  table.spec tbody td {
+    padding: 8px 10px;
+    color: #333;
+    vertical-align: top;
+  }
+
+  table.spec tbody td:first-child {
+    font-weight: 600;
+    color: #111;
+    white-space: nowrap;
+  }
+
+  /* CODE / DIAGRAM BLOCK */
+  .diagram {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 8.5pt;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    padding: 16px 20px;
+    margin: 16px 0;
+    line-height: 1.55;
+    color: #1a1a1a;
+    white-space: pre;
+    overflow: hidden;
+  }
+
+  /* LABEL BADGE */
+  .badge {
+    display: inline-block;
+    font-size: 7.5pt;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border: 1px solid #1a1a1a;
+    color: #1a1a1a;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .badge.gray {
+    border-color: #999;
+    color: #777;
+  }
+
+  /* FIGURE CAPTION */
+  .fig-caption {
+    font-size: 8.5pt;
+    color: #777;
+    text-align: center;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* EQUATION-STYLE HIGHLIGHT */
+  .highlight-box {
+    border: 1px solid #ccc;
+    padding: 12px 18px;
+    margin: 14px 0;
+    background: #fafafa;
+    font-size: 10pt;
+  }
+
+  .highlight-box .eq-label {
+    font-size: 8pt;
+    color: #aaa;
+    float: right;
+    font-style: italic;
+  }
+
+  ul, ol {
+    padding-left: 22px;
+    margin: 8px 0 12px 0;
+  }
+
+  li { margin-bottom: 4px; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 16px 0;
+  }
+
+  .col-box {
+    border: 1px solid #e0e0e0;
+    padding: 14px 16px;
+  }
+
+  .col-box .col-title {
+    font-size: 8.5pt;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .col-box ul {
+    padding-left: 16px;
+    font-size: 10pt;
+  }
+
+  .footnote {
+    font-size: 8.5pt;
+    color: #888;
+    border-top: 1px solid #eee;
+    margin-top: 30px;
+    padding-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ KAPAK ═══════════════════ -->
+<div class="cover">
+  <div class="cover-header">
+    <div class="institution">Bilgisayar Mühendisliği Bölümü</div>
+    <div class="dept">Mikroişlemci Sistemleri Dersi — Dönem Projesi</div>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-tag">Teknik Tasarım Raporu</div>
+    <div class="cover-title">WiFi Sinyalleri ile<br>Temassız İnsan<br>Hareketi Tespiti</div>
+    <div class="cover-subtitle">CSI Tabanlı RF Algılama, Varlık Tespiti ve Vital Sign İzleme</div>
+    <div class="cover-divider"></div>
+    <div class="cover-meta">
+      <table>
+        <tr><td>Proje Türü</td><td>Araştırma ve Prototip Geliştirme</td></tr>
+        <tr><td>Ana Konu</td><td>WiFi CSI ile Hareket ve Varlık Tespiti</td></tr>
+        <tr><td>Ek Konu</td><td>Kalp Atışı ve Solunum Hızı Tahmini</td></tr>
+        <tr><td>Donanım</td><td>ESP32-S3 · MAX30102 · 802.11n Router</td></tr>
+        <tr><td>Tarih</td><td>Nisan 2026</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    <span>Gizlilik: Akademik Kullanım</span>
+    <span>v1.0</span>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════ İÇİNDEKİLER ═══════════════════ -->
+<div class="content">
+<div class="toc-title">İçindekiler</div>
+
+<div class="toc-item"><span class="toc-num">1</span><span class="toc-text">Projeye Genel Bakış</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">1.1</span><span class="toc-text">Motivasyon ve Kapsam</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">1.2</span><span class="toc-text">Temel Çalışma Prensibi</span></div>
+
+<div class="toc-item"><span class="toc-num">2</span><span class="toc-text">Donanım Bileşenleri</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">2.1</span><span class="toc-text">ESP32-S3 Mikroişlemcisi — Birincil RF Sensörü</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">2.2</span><span class="toc-text">802.11n WiFi Yönlendiricisi — RF Alan Kaynağı</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">2.3</span><span class="toc-text">MAX30102 — Vital Sign Doğrulama Sensörü</span></div>
+
+<div class="toc-item"><span class="toc-num">3</span><span class="toc-text">Sistem Mimarisi</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">3.1</span><span class="toc-text">Genel Blok Diyagram</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">3.2</span><span class="toc-text">Veri Akış Diyagramı</span></div>
+
+<div class="toc-item"><span class="toc-num">4</span><span class="toc-text">CSI Sinyali ve Fiziksel Temel</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">4.1</span><span class="toc-text">Channel State Information Nedir?</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">4.2</span><span class="toc-text">Hareketin Sinyal Üzerindeki Etkisi</span></div>
+
+<div class="toc-item"><span class="toc-num">5</span><span class="toc-text">Algılama Katmanları</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">5.1</span><span class="toc-text">Birincil: Varlık ve Hareket Tespiti</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">5.2</span><span class="toc-text">İkincil: Mikro Hareket Analizi — Vital Sign Tahmini</span></div>
+<div class="toc-item toc-sub"><span class="toc-num">5.3</span><span class="toc-text">Model Mimarisi</span></div>
+
+<div class="toc-item"><span class="toc-num">6</span><span class="toc-text">Beklenen Çıktılar ve Doğrulama</span></div>
+<div class="toc-item"><span class="toc-num">7</span><span class="toc-text">Kaynaklar</span></div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════ BÖLÜM 1 ═══════════════════ -->
+<span class="section-number">Bölüm 1</span>
+<h1>Projeye Genel Bakış</h1>
+
+<h2>1.1 Motivasyon ve Kapsam</h2>
+
+<p>Güvenlik sistemleri, akıllı ev otomasyonu ve sağlık izleme uygulamalarında insan varlığı ve hareketinin tespiti kritik bir gereksinim haline gelmiştir. Kamera tabanlı çözümler gizlilik endişesi yaratırken, PIR ve ultrasonik sensörler yalnızca kaba hareket tespiti sağlayabilmekte; radar ve LiDAR sistemleri ise yüksek maliyet ve özel donanım gerektirmektedir.</p>
+
+<p>Bu proje, halihazırda her ortamda bulunan standart WiFi altyapısını, herhangi bir ek donanım maliyeti olmaksızın bir <em>hareket ve varlık algılama sistemine</em> dönüştürmeyi hedeflemektedir. Sistemin temel katmanı, kişinin odada bulunup bulunmadığını ve hareket edip etmediğini tespit etmektir. Bu temel üzerine, aynı fiziksel prensipten yararlanarak solunum ve kalp atışı gibi mikro hareketlerin de izlenmesi ikincil bir yetenek olarak sisteme eklenebilmektedir.</p>
+
+<div class="callout">
+  <div class="callout-label">Proje Hedefi</div>
+  ESP32-S3 mikrodenetleyicisi aracılığıyla toplanan WiFi CSI verisi üzerinden; <strong>(1)</strong> insan varlığı ve kaba hareket tespiti, <strong>(2)</strong> hareketsiz bireyde solunum hızı tespiti ve <strong>(3)</strong> makine öğrenmesi ile kalp atışı tahmini olmak üzere üç kademeli bir algılama sistemi geliştirmek; vital sign çıktılarını MAX30102 optik sensörü ile doğrulamak.
+</div>
+
+<h2>1.2 Temel Çalışma Prensibi</h2>
+
+<p>WiFi sinyalleri ortamda yayılırken duvarlar, nesneler ve insan vücudu gibi fiziksel engellere çarparak kırılır ve yansır. Bu yansıma ve kırılma olayları, alıcı antende gözlemlenen sinyalin genlik ve faz değerlerini sürekli değiştirir. <strong>Channel State Information (CSI)</strong>, bu değişimin her alt taşıyıcı kanalı için anlık kaydını sağlar.</p>
+
+<p>İnsan vücudunun CSI üzerindeki etkisi, gerçekleştirilen hareketin büyüklüğüne göre üç farklı ölçekte kendini gösterir. Bu ölçekler birbiriyle örtüşmez ve farklı işleme yöntemleriyle bağımsız olarak analiz edilebilir:</p>
+
+<div class="two-col">
+  <div class="col-box">
+    <div class="col-title">Makro Hareket (Kaba)</div>
+    <ul>
+      <li>Yürüme, kol hareketi, pozisyon değişimi</li>
+      <li>Hareket genliği: &gt; 10 mm</li>
+      <li>CSI değişimi: Çok güçlü, ani</li>
+      <li>Tespit: Eşik karşılaştırması yeterli</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <div class="col-title">Mikro Hareket (İnce)</div>
+    <ul>
+      <li>Nefes: 1–5 mm, 0.1–0.5 Hz</li>
+      <li>Kalp atışı: 0.1–0.5 mm, 0.8–2.0 Hz</li>
+      <li>CSI değişimi: Zayıf, periyodik</li>
+      <li>Tespit: Sinyal işleme + ML gerekir</li>
+    </ul>
+  </div>
+</div>
+
+<p>Varlık tespiti ise her iki kategorinin de ötesinde, kişinin hareketsiz oturduğu durumlarda dahi solunum kaynaklı mikro hareketlerin CSI'da gözlemlenmesiyle sağlanabilir. Bu, kamerasız bir sistemin PIR sensörünün yapamadığı şeyi — tamamen hareketsiz bir kişiyi tespit etmeyi — başarabileceği anlamına gelir.</p>
+
+<p class="footnote">IEEE 802.11n standardı, 2.4 GHz frekans bandında OFDM modülasyon kullanır. 20 MHz kanal genişliğinde 56 adet, 40 MHz kanalda ise 114 adet alt taşıyıcı mevcuttur. Her alt taşıyıcı bağımsız bir ölçüm noktası işlevi görür; bu çokluk, küçük beden hareketlerinin istatistiksel olarak güvenilir biçimde saptanmasını mümkün kılar.</p>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════ BÖLÜM 2 ═══════════════════ -->
+<span class="section-number">Bölüm 2</span>
+<h1>Donanım Bileşenleri</h1>
+
+<h2>2.1 ESP32-S3 Mikroişlemcisi — Birincil RF Sensörü</h2>
+
+<p>ESP32-S3, Espressif Systems tarafından üretilen, entegre WiFi ve Bluetooth LE radyosuna sahip çift çekirdekli bir mikrodenetleyicidir. Bu projede iki farklı rol üstlenir: birinci birim CSI verisi toplayan <em>alıcı</em>, ikinci birim ise sürekli WiFi çerçevesi gönderen <em>verici</em> olarak yapılandırılır.</p>
+
+<p>ESP32-S3'ü bu proje için uygun kılan temel özellik, Espressif'in resmi yazılım geliştirme çatısı ESP-IDF aracılığıyla <strong>ham CSI verisine doğrudan erişim</strong> imkânı sunmasıdır. Tüketici WiFi ürünlerinin büyük çoğunluğu bu veriye kapalıdır; ESP32 bu kısıtlamanın bulunmadığı nadir donanımlardan biridir.</p>
+
+<table class="spec">
+  <thead>
+    <tr>
+      <th>Özellik</th>
+      <th>Değer</th>
+      <th>Proje İçin Önemi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>İşlemci</td>
+      <td>Xtensa LX7, çift çekirdek, 240 MHz</td>
+      <td>Gerçek zamanlı CSI işleme için yeterli güç</td>
+    </tr>
+    <tr>
+      <td>Flash (N16R8)</td>
+      <td>16 MB</td>
+      <td>Firmware + küçük model ağırlıkları saklanabilir</td>
+    </tr>
+    <tr>
+      <td>PSRAM (N16R8)</td>
+      <td>8 MB</td>
+      <td>Büyük CSI tampon belleği tutulabilir</td>
+    </tr>
+    <tr>
+      <td>WiFi</td>
+      <td>IEEE 802.11b/g/n, 2.4 GHz</td>
+      <td>CSI verisi bu standart üzerinden alınır</td>
+    </tr>
+    <tr>
+      <td>CSI Erişimi</td>
+      <td>Espressif ESP-IDF API ile açık</td>
+      <td>Projenin teknik temeli</td>
+    </tr>
+    <tr>
+      <td>I²C / SPI / UART</td>
+      <td>Çok sayıda GPIO</td>
+      <td>MAX30102 sensör entegrasyonu</td>
+    </tr>
+    <tr>
+      <td>Güç tüketimi</td>
+      <td>~240 mW (aktif WiFi)</td>
+      <td>USB ile çalıştırılabilir</td>
+    </tr>
+    <tr>
+      <td>Birim maliyet</td>
+      <td>~5 – 8 USD</td>
+      <td>Düşük prototip maliyeti</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <div class="callout-label">RF Sensörü Olarak ESP32</div>
+  Geleneksel sensörler fiziksel ya da kimyasal büyüklükleri doğrudan elektrik sinyaline dönüştürür. ESP32'nin WiFi alıcısı ise ortamdaki elektromanyetik alan değişimlerini ölçen bir <em>pasif RF sensörü</em> olarak sınıflandırılır. Radar ve LiDAR sistemleriyle aynı ölçüm prensibini, çok daha düşük maliyetli ve yaygın bir donanımla uygular.
+</div>
+
+<h2>2.2 802.11n WiFi Yönlendiricisi — İkincil RF Kaynağı</h2>
+
+<p>Bir WiFi yönlendiricisinin temel işlevi veri paketlerini iletmektir; ancak bu süreçte sürekli olarak radyo frekansı (RF) enerjisi yaymaktadır. Yönlendirici bu projede, ortamı aydınlatan bir ışık kaynağı gibi, CSI ölçümünü mümkün kılan sürekli RF alanı oluşturur.</p>
+
+<p>Standart bir WiFi modeminde de fizik açısından aynı CSI bilgisi mevcuttur; ancak üretici firmaların kapalı yazılımları bu veriye kullanıcı erişimine izin vermez. Bu nedenle projede ikinci bir ESP32, yönlendiricinin rolünü üstlenerek erişilebilir CSI paketi kaynağı olarak görev yapar. Bir ESP32'nin yönlendirici rolünü üstlenmesi, mevcut ticari yönlendirici altyapısından bağımsız, kontrol edilebilir ve tekrarlanabilir bir deney ortamı sağlar.</p>
+
+<table class="spec">
+  <thead>
+    <tr>
+      <th>Bileşen</th>
+      <th>Projede Rolü</th>
+      <th>CSI Erişimi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ticari WiFi Modemi</td>
+      <td>RF alanı oluşturur, ağ altyapısı sağlar</td>
+      <td>Kapalı — firmware kısıtlaması</td>
+    </tr>
+    <tr>
+      <td>ESP32-S3 #2 (Verici)</td>
+      <td>Kontrollü WiFi çerçevesi gönderir</td>
+      <td>Açık — ESP-IDF ile tam kontrol</td>
+    </tr>
+    <tr>
+      <td>ESP32-S3 #1 (Alıcı)</td>
+      <td>CSI verisini toplar ve PC'ye iletir</td>
+      <td>Açık — ham CSI callback</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2.3 MAX30102 — Doğrulama Sensörü</h2>
+
+<p>MAX30102, Maxim Integrated tarafından üretilen entegre kızılötesi ve kırmızı LED'li bir fotopletismografi (PPG) sensörüdür. Parmak ya da bilek bölgesindeki kan akışını optik yöntemle ölçerek kalp atışı ve oksijen doygunluğu (SpO₂) değerlerini saniyeler içinde üretir.</p>
+
+<p>Bu projede MAX30102'nin birincil işlevi <strong>ground truth</strong> (referans gerçek değer) sağlamaktır. WiFi CSI'dan elde edilen kalp atışı tahmini, MAX30102'nin eş zamanlı ölçümüyle karşılaştırılarak modelin doğruluğu hesaplanır. Sistem, nihayetinde MAX30102'ye <em>gerek duymadan</em> çalışmayı hedefler; ancak geliştirme ve doğrulama aşamasında vazgeçilmez bir referanstır.</p>
+
+<table class="spec">
+  <thead>
+    <tr>
+      <th>Özellik</th>
+      <th>Değer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ölçüm yöntemi</td>
+      <td>Fotopletismografi (PPG) — kızılötesi + kırmızı LED</td>
+    </tr>
+    <tr>
+      <td>Çıktı</td>
+      <td>Kalp atışı (bpm) + SpO₂ (%)</td>
+    </tr>
+    <tr>
+      <td>Bağlantı arayüzü</td>
+      <td>I²C (3.3 V uyumlu)</td>
+    </tr>
+    <tr>
+      <td>Örnekleme hızı</td>
+      <td>50 – 3200 örnek/saniye (yapılandırılabilir)</td>
+    </tr>
+    <tr>
+      <td>Güç tüketimi</td>
+      <td>~600 µA (aktif)</td>
+    </tr>
+    <tr>
+      <td>Birim maliyet</td>
+      <td>~3 – 5 USD</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════ BÖLÜM 3 ═══════════════════ -->
+<span class="section-number">Bölüm 3</span>
+<h1>Sistem Mimarisi</h1>
+
+<h2>3.1 Genel Blok Diyagram</h2>
+
+<div class="diagram">  ┌──────────────────────────────────────────────────────────────────┐
+  │                        SİSTEM GENEL GÖRÜNÜMÜ                    │
+  └──────────────────────────────────────────────────────────────────┘
+
+        [ESP32-S3 #2]                              [ESP32-S3 #1]
+        ┌───────────────┐                          ┌──────────────────────┐
+        │   VERİCİ      │                          │       ALICI           │
+        │               │  ── WiFi çerçeveleri ──▶ │                      │
+        │  IEEE 802.11n │        2.4 GHz           │  CSI Callback        │
+        │  ~100 pkt/sn  │                          │  (Genlik + Faz)      │
+        │               │     ┌──────────┐         │                      │
+        └───────────────┘     │  KİŞİ    │         │  ┌───────────────┐   │
+                              │ (denek)  │         │  │   MAX30102    │   │
+                              │          │         │  │  (I²C bağlı) │   │
+                              │ ◀ Göğüs  │         │  │  Kalp atışı  │   │
+                              │   hareketi         │  │  (referans)  │   │
+                              └──────────┘         │  └───────────────┘   │
+                                                   │                      │
+                                                   │  USB / Serial        │
+                                                   └──────────┬───────────┘
+                                                              │
+                                                    ┌─────────▼──────────┐
+                                                    │         PC          │
+                                                    │  ┌───────────────┐  │
+                                                    │  │ Sinyal İşleme │  │
+                                                    │  │ FFT · Filtre  │  │
+                                                    │  └───────┬───────┘  │
+                                                    │  ┌───────▼───────┐  │
+                                                    │  │  ML Modeli    │  │
+                                                    │  │ 1D-CNN / LSTM │  │
+                                                    │  └───────┬───────┘  │
+                                                    │  ┌───────▼───────┐  │
+                                                    │  │    ÇIKTI      │  │
+                                                    │  │  Kalp atışı   │  │
+                                                    │  │  Nefes hızı   │  │
+                                                    │  └───────────────┘  │
+                                                    └─────────────────────┘</div>
+<p class="fig-caption">Şekil 1 — Sistem genel blok diyagramı. Verici ESP32 sürekli WiFi paketi gönderir; alıcı ESP32 hem CSI verisini toplar hem de MAX30102 referans değerini okur.</p>
+
+<h2>3.2 Veri Akış Diyagramı</h2>
+
+<div class="diagram">  Ham CSI Verisi  [Zaman × Alt_Taşıyıcı]
+         │
+         ▼
+  ┌──────────────────────────────────────────────────┐
+  │  KATMAN 1 — VARLIK / HAREKET TESPİTİ             │
+  │                                                  │
+  │  Diferansiyel CSI → Var(ΔCSI) hesapla           │
+  │                                                  │
+  │   Var ≈ 0  → Boş oda                            │
+  │   Var küçük → Hareketsiz varlık  ───────────┐   │
+  │   Var büyük → Hareketli varlık              │   │
+  └─────────────────────────────────────────────┼───┘
+                                                │
+                        Yalnızca "hareketsiz varlık"
+                                                │
+                                                ▼
+  ┌──────────────────────────────────────────────────┐
+  │  ÖN İŞLEME (Mikro hareket için)                  │
+  │  1. Faz sanitizasyonu  (unwrapping + detrend)    │
+  │  2. Alt taşıyıcı seçimi  (en bilgilendirici 30)  │
+  │  3. Bant geçiren filtre  (0.1 – 2.5 Hz)         │
+  └───────────────────┬──────────────────────────────┘
+                      │
+          ┌───────────┴───────────┐
+          │                       │
+          ▼                       ▼
+  ┌─────────────┐        ┌──────────────────┐
+  │  KATMAN 2   │        │    KATMAN 3       │
+  │ NEFES BANDI │        │ KALP ATIŞI BANDI │
+  │  0.1–0.5 Hz │        │  0.8–2.0 Hz      │
+  │             │        │                  │
+  │ FFT →       │        │ 1D-CNN / LSTM →  │
+  │ Peak detect │        │ Regresyon        │
+  └──────┬──────┘        └────────┬─────────┘
+         │                        │
+         ▼                        ▼
+  Nefes hızı (rpm)        Kalp atışı (bpm)
+                                  │
+                    ┌─────────────▼──────────────┐
+                    │  DOĞRULAMA                  │
+                    │  MAX30102 referans değeri   │
+                    │  ile MAE hesapla            │
+                    └─────────────────────────────┘</div>
+<p class="fig-caption">Şekil 2 — Üç kademeli veri akış diyagramı. Varlık tespiti her zaman çalışır; mikro hareket analizi yalnızca hareketsiz varlık tespit edildiğinde devreye girer.</p>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════ BÖLÜM 4 ═══════════════════ -->
+<span class="section-number">Bölüm 4</span>
+<h1>CSI Sinyali ve Fiziksel Temel</h1>
+
+<h2>4.1 Channel State Information Nedir?</h2>
+
+
+<p>IEEE 802.11n standardı, çoklu anten desteği için MIMO (Multiple Input Multiple Output) ve OFDM (Orthogonal Frequency Division Multiplexing) tekniklerini kullanır. OFDM, geniş bant genişliğini birbirine dik ve bağımsız dar alt kanallara böler. Alıcı, her alt kanalın genlik kazancı ve faz kaymasını ölçerek kanalın anlık durumunu karakterize eder. Bu vektöre <strong>Kanal Durum Bilgisi (CSI)</strong> adı verilir:</p>
+
+<div class="highlight-box">
+  <span class="eq-label">(1)</span>
+  H(f,t) = |H(f,t)| · e<sup>jφ(f,t)</sup>
+  <br><br>
+  <span style="font-size:9.5pt; color:#555;">
+  H(f,t)  : f frekansında, t anındaki kanal transfer fonksiyonu<br>
+  |H(f,t)|: Genlik — sinyalin gücü<br>
+  φ(f,t)  : Faz — yayılma gecikmesi
+  </span>
+</div>
+
+<p>ESP32-S3'ün IEEE 802.11n alıcısı, her alınan WiFi çerçevesinde bu değerleri tüm alt taşıyıcılar için hesaplar ve ESP-IDF CSI callback fonksiyonu aracılığıyla uygulamaya aktarır. 2.4 GHz, 40 MHz kanal genişliğinde 114 alt taşıyıcı elde edilir; bu, ortamın anlık RF durumunun 114 boyutlu bir anlık görüntüsü anlamına gelir.</p>
+
+<h2>4.2 Hareketin Sinyal Üzerindeki Etkisi</h2>
+
+<p>Verici ve alıcı arasındaki LOS (Line of Sight) ve NLOS yollar üzerinde bulunan insan vücudu, hareketleriyle bu yolların uzunluğunu değiştirir. Yol uzunluğundaki Δd kadar değişim, faz değerini şu miktarda etkiler:</p>
+
+<div class="highlight-box">
+  <span class="eq-label">(2)</span>
+  Δφ = (4π · Δd) / λ
+  <br><br>
+  <span style="font-size:9.5pt; color:#555;">
+  Δφ : Faz değişimi (radyan)<br>
+  Δd : Yol uzunluğundaki değişim (metre)<br>
+  λ  : Dalga boyu = c/f ≈ 0.125 m (2.4 GHz için)
+  </span>
+</div>
+
+<p>0.1 mm'lik bir göğüs hareketi (kalp atışı) dahi 2.4 GHz'de yaklaşık <strong>0.05 radyan</strong> faz kaymasına yol açar. Bu değer, modern WiFi donanımlarının faz ölçüm hassasiyeti dahilindedir ve tutarlı filtreleme ile tespit edilebilir.</p>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════ BÖLÜM 5 ═══════════════════ -->
+<span class="section-number">Bölüm 5</span>
+<h1>Algılama Katmanları</h1>
+
+<p>Sistem, CSI verisinden giderek daha ince bilgi çıkaran üç kademeli bir algılama mimarisi üzerine kurulmuştur. Her kademe bir öncekinin üzerine inşa edilir; alt katmanlar başarısız olsa dahi üst katmanlar çalışmaya devam eder.</p>
+
+<h2>5.1 Birincil Katman — Varlık ve Hareket Tespiti</h2>
+
+<p>Bu katman sistemin temelini oluşturur ve en güvenilir şekilde çalışan bölümdür. İnsan vücudunun odada bulunması CSI genlik değerlerinde istatistiksel olarak anlamlı bir değişim yaratır. Kişinin hareket etmesi bu değişimi belirginleştirir; hareketsiz oturması ise solunum kaynaklı periyodik dalgalanmalar aracılığıyla yine tespit edilebilir hale gelir.</p>
+
+<h3>Varlık Tespiti — Yöntem</h3>
+<p>Referans (boş oda) CSI genlik ortalaması önceden kaydedilir. Anlık CSI değerinin referanstan sapması belirli bir eşiği aştığında ortamda insan varlığı olduğu kararı verilir. Bu işlem makine öğrenmesi gerektirmez; basit istatistiksel eşik karşılaştırması yeterlidir.</p>
+
+<h3>Hareket Tespiti — Yöntem</h3>
+<p>Ardışık CSI çerçeveleri arasındaki fark (diferansiyel CSI) hesaplanır. Bu diferansiyel sinyalin varyansı, kayan bir zaman penceresi üzerinde izlenir. Yüksek varyans aktif hareket; düşük ama sıfır olmayan varyans hareketsiz varlık; sıfıra yakın varyans ise boş oda olarak sınıflandırılır.</p>
+
+<div class="diagram">  Boş Oda          Hareketsiz Kişi     Hareketli Kişi
+  ─────────────     ~~~~~~~~~~~~~~~~~~~   /\/\/\/\/\/\/\
+  CSI sabit         Nefes dalgası         Büyük ani değişim
+  Var(ΔCSI) ≈ 0     Var(ΔCSI) = düşük    Var(ΔCSI) = yüksek
+      │                   │                    │
+      ▼                   ▼                    ▼
+   BOŞ ODA           VARLIK TESPİT       HAREKET TESPİT</div>
+<p class="fig-caption">Şekil 3 — Diferansiyel CSI varyansına dayalı üç sınıf ayrımı.</p>
+
+<h2>5.2 İkincil Katman — Mikro Hareket Analizi ve Vital Sign Tahmini</h2>
+
+<p>Kişinin hareketsiz oturduğu durumlarda, CSI sinyali içinde çok daha küçük ölçekli periyodik bileşenler gizlidir. Uygun ön işleme ve frekans analizi ile bu bileşenler ayırt edilebilir ve fizyolojik parametrelere dönüştürülebilir. Bu katman birinci katmana bağlıdır — yalnızca "hareketsiz varlık" durumunda etkinleşir.</p>
+
+<h3>Ön İşleme Adımları</h3>
+
+<p><strong>Faz Sanitizasyonu:</strong> ESP32'nin ADC ve osilatör doğrusalsızlıkları nedeniyle ham faz değerleri ciddi doğrusal sapma ve sarma (wrapping) içerir. Unwrapping, lineer trend giderme ve Hampel filtresi uygulanır.</p>
+
+<p><strong>Alt Taşıyıcı Seçimi:</strong> Multipath etkisiyle bazı alt taşıyıcılar derin sönümleme bölgesine girebilir. Zaman içinde en yüksek biyolojik-kaynaklı varyansı gösteren 20–30 alt taşıyıcı seçilir, geri kalanlar dışarıda bırakılır.</p>
+
+<p><strong>Bant Geçiren Filtreleme:</strong> 4. dereceden Butterworth filtre (0.1–2.5 Hz) ile insan hareketinin dışındaki tüm bileşenler bastırılır.</p>
+
+<table class="spec">
+  <thead>
+    <tr>
+      <th>Hedef</th>
+      <th>Yöntem</th>
+      <th>Beklenen Hata</th>
+      <th>Zorluk</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Solunum hızı</td>
+      <td>FFT + tepe nokta tespiti</td>
+      <td>±1 – 3 nefes/dak</td>
+      <td>Düşük</td>
+    </tr>
+    <tr>
+      <td>Kalp atışı</td>
+      <td>1D-CNN + LSTM regresyon</td>
+      <td>±4 – 6 bpm</td>
+      <td>Orta–Yüksek</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>5.3 Model Mimarisi</h2>
+
+<p>Kalp atışı tahmini için önerilen model, radar literatüründe öne sürülen 2D+1D ResNet yaklaşımının WiFi domainine uyarlanmış basitleştirilmiş versiyonudur. Giriş, 30 saniyelik kayan pencereden elde edilen [30s × N<sub>subcarrier</sub>] boyutlu CSI genlik dizisidir.</p>
+
+<div class="diagram">  GİRİŞ: CSI Penceresi [30s × 52 subcarrier]
+         │
+         ▼
+  ┌──────────────────────────────────────┐
+  │  1D-CNN Bloğu × 3                    │
+  │  Conv1D(32) → BN → ReLU → MaxPool   │
+  └──────────────┬───────────────────────┘
+                 │
+                 ▼
+  ┌──────────────────────────────────────┐
+  │  LSTM Katmanı                        │
+  │  64 birim, geri besleme yok          │
+  └──────────────┬───────────────────────┘
+                 │
+                 ▼
+  ┌──────────────────────────────────────┐
+  │  Tam Bağlantılı Katman + Dropout     │
+  └──────────────┬───────────────────────┘
+                 │
+                 ▼
+          Kalp atışı (bpm)   &lt;── Tek skaler çıktı</div>
+<p class="fig-caption">Şekil 4 — Önerilen 1D-CNN + LSTM model mimarisi. Yalnızca hareketsiz varlık tespit edildiğinde devreye giren ikincil katman.</p>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════ BÖLÜM 6 ═══════════════════ -->
+<span class="section-number">Bölüm 6</span>
+<h1>Beklenen Çıktılar ve Doğrulama</h1>
+
+<p>Projenin başarısı üç kademeye karşılık gelen ayrı değerlendirme kriterleri ile ölçülecektir:</p>
+
+<h2>Birinci Kademe — Varlık ve Hareket Tespiti</h2>
+<ul>
+  <li>ESP32-S3 ile kesintisiz CSI verisi toplanması ve PC'ye aktarılması</li>
+  <li>Boş oda ile dolu oda CSI değerlerinin görsel olarak ayrışması</li>
+  <li>Varlık tespitinde %90 üzeri doğruluk (basit eşik yöntemi)</li>
+  <li>Hareket / hareketsizlik sınıflandırmasının gerçek zamanlı gösterimi</li>
+  <li>Gerçek zamanlı görselleştirme arayüzü</li>
+</ul>
+
+<h2>İkinci Kademe — Solunum Hızı Tespiti</h2>
+<ul>
+  <li>FFT tabanlı yöntemle solunum hızının ±3 nefes/dakika hata payı ile tespiti</li>
+  <li>MAX30102 ile eş zamanlı referans veri kaydı ve karşılaştırma</li>
+</ul>
+
+<h2>Üçüncü Kademe — Kalp Atışı Tahmini (Ek Yetenek)</h2>
+<ul>
+  <li>1D-CNN/LSTM modeli ile kalp atışı tahmini; hedef MAE ≤ 6 bpm</li>
+  <li>En az 3 farklı denek ile modelin genellenebilirliğinin test edilmesi</li>
+  <li>Klinik kabul eşiği olan 5 bpm sınırına yaklaşılması</li>
+</ul>
+
+<h2>Doğrulama Protokolü</h2>
+<p>Her deney oturumunda (5 dakika, hareketsiz oturma pozisyonu) CSI ve MAX30102 verileri eş zamanlı kaydedilecek; vital sign tahminleri için <em>Ortalama Mutlak Hata (MAE)</em> ve <em>Pearson korelasyon katsayısı</em>, varlık tespiti için <em>doğruluk, hassasiyet ve geri çağırma</em> metrikleri hesaplanacaktır.</p>
+
+<div class="callout">
+  <div class="callout-label">Literatür Referans Değerleri</div>
+  Varlık tespiti için WiFi CSI tabanlı çalışmalar %95+ doğruluk bildirmektedir. Solunum hızı için ±2 nefes/dakika, FMCW radar ile kalp atışı için MAE 0.85 bpm, UWB radar transfer learning sonrası 4.1 bpm elde edilmiştir. WiFi CSI ile ulaşılması beklenen kalp atışı hatası 4–6 bpm aralığındadır.
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════ KAYNAKLAR ═══════════════════ -->
+<span class="section-number">Bölüm 7</span>
+<h1>Kaynaklar</h1>
+
+<ol style="line-height:2.0; font-size:10pt;">
+  <li>
+    <strong>UWB Radar ile Kalp Atışı Monitorizasyonu</strong><br>
+    <span style="color:#555;">Transfer Learning Yaklaşımı — 2D+1D ResNet mimarisi</span><br>
+    arXiv:2507.14195v1, 2025
+  </li>
+  <li>
+    <strong>DensePose From WiFi</strong><br>
+    <span style="color:#555;">Geng et al., Carnegie Mellon University</span><br>
+    arXiv:2301.00250, 2023
+  </li>
+  <li>
+    <strong>Person-in-WiFi: Fine-grained Person Perception using WiFi</strong><br>
+    <span style="color:#555;">Wang et al.</span><br>
+    arXiv:1904.00276, 2019
+  </li>
+  <li>
+    <strong>ESP-CSI: Applications based on Wi-Fi CSI</strong><br>
+    <span style="color:#555;">Espressif Systems — Resmi geliştirici deposu</span><br>
+    github.com/espressif/esp-csi
+  </li>
+  <li>
+    <strong>ESP32-CSI-Tool</strong><br>
+    <span style="color:#555;">StevenMHernandez — CSI veri toplama aracı</span><br>
+    github.com/StevenMHernandez/ESP32-CSI-Tool
+  </li>
+  <li>
+    <strong>A Survey on Vital Signs Monitoring Based on Wi-Fi CSI Data</strong><br>
+    <span style="color:#555;">PMC/NCBI — Kapsamlı literatür taraması</span><br>
+    pmc.ncbi.nlm.nih.gov/articles/PMC9375645/, 2022
+  </li>
+  <li>
+    <strong>ESP32-S3 Technical Reference Manual</strong><br>
+    <span style="color:#555;">Espressif Systems</span><br>
+    docs.espressif.com/projects/esp-idf/en/stable/esp32s3
+  </li>
+  <li>
+    <strong>MAX30102 High-Sensitivity Pulse Oximeter and Heart-Rate Sensor Datasheet</strong><br>
+    <span style="color:#555;">Maxim Integrated / Analog Devices</span><br>
+    datasheets.maximintegrated.com
+  </li>
+</ol>
+
+</div>
+</body>
+</html>
